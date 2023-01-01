@@ -2,15 +2,17 @@ package com.example.demo;
 
 import com.example.demo.Exceptions.EmptyException;
 import com.example.demo.Exceptions.IncorrectException;
-import com.example.demo.entities.User;
+import com.example.demo.entities.UserAccount;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class SignUpPage extends JFrame {
+public class SignUpPageFirstStep extends JFrame {
 
     private JTextField usernameField;
     private JTextField emailField;
@@ -22,7 +24,7 @@ public class SignUpPage extends JFrame {
 
     private BufferedWriter bufferedWriter;
 
-    public SignUpPage(StringBuilder stringBuilder) {
+    public SignUpPageFirstStep(StringBuilder stringBuilder) {
         setContentPane(panel);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setVisible(true);
@@ -56,29 +58,16 @@ public class SignUpPage extends JFrame {
                     if (!textOfEmailField.contains(".")) {
                         throw new IncorrectException("Your email doesn't have .");
                     }
-                    if (textOfPassword.length() < 8) {
-                        throw new IncorrectException("Your password must be at least 8 characters");
+                    if (textOfPassword.length() > 8) {
+                        Pattern pattern = Pattern.compile("^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z]).*$");
+                        Matcher matcher = pattern.matcher(textOfPassword);
+                        if(!matcher.find()){
+                            throw new IncorrectException("Your password must be at least 8 characters, have a Lowercase letter, have an Uppercase letter and a digit.");
+                        }
+                    }else {
+                        throw new IncorrectException("Your password must be at least 8 characters.");
                     }
 
-                    for (int i = 0; i < textOfPassword.length(); i++) {
-                        if (textOfPassword.charAt(i) <= 122 && textOfPassword.charAt(i) >= 97) {
-                            passwordHasLowerCase = true;
-                        }
-                        if (textOfPassword.charAt(i) <= 90 && textOfPassword.charAt(i) >= 65) {
-                            passwordHasUpperCase = true;
-                        }
-                        if (textOfPassword.charAt(i) <= 57 && textOfPassword.charAt(i) >= 48) {
-                            passwordHasDigitCase = true;
-                        }
-                    }
-
-                    if (!passwordHasLowerCase) {
-                        throw new IncorrectException("Your password must have an Lowercase letter");
-                    } else if (!passwordHasUpperCase) {
-                        throw new IncorrectException("Your password must have an Uppercase letter");
-                    } else if (!passwordHasDigitCase) {
-                        throw new IncorrectException("Your password must have a digit");
-                    }
                 }catch (Exception ex){
                     JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     throw new RuntimeException(ex);
@@ -88,7 +77,7 @@ public class SignUpPage extends JFrame {
                 String toGetLastId = stringBuilder.toString();
 
                 String[] allThingsArr = toGetLastId.split("\\n");
-                int idMax=-1;
+                int idMax=0;
                 for (String s : allThingsArr) {
                     try {
                         String[] userProperties= s.split(" ");
@@ -100,7 +89,7 @@ public class SignUpPage extends JFrame {
 
                 idUserCreator=idMax;
                 idUserCreator++;
-                User user = new User(idUserCreator,textOfUsernameField,textOfEmailField,textOfPassword);
+                UserAccount user = new UserAccount(idUserCreator,textOfUsernameField,textOfEmailField,textOfPassword);
 
                 String fileLine = String.format("%d %s %s %s%n",user.getId(),user.getUsername(),user.getEmail(),user.getPassword());
 
@@ -111,6 +100,17 @@ public class SignUpPage extends JFrame {
                     bufferedWriter.write(stringBuilder.toString());
                     System.out.println(stringBuilder.toString());
                     bufferedWriter.close();
+
+                    //to not delete the UserProperties File From
+                    File file = new File("D:\\Intelij\\IdeaProjects\\InformaticaProject\\demo\\src\\main\\resources\\UserProperties");
+                    Scanner scanner = new Scanner(file);
+                    StringBuilder stringBuilder = new StringBuilder();
+                    while (scanner.hasNextLine()){
+                        stringBuilder.append(scanner.nextLine()+String.format("%n"));
+                    }
+                    //To Here
+                    SignUpPageSecondStep signUpSecondStep = new SignUpPageSecondStep(idUserCreator,stringBuilder);
+                    dispose();
 
 
 

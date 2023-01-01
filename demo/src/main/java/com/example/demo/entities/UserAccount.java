@@ -1,6 +1,6 @@
 package com.example.demo.entities;
 
-public class User {
+public class UserAccount {
 
     private int id;
     private String username;
@@ -9,7 +9,7 @@ public class User {
 
     private String password;
 
-    public User(int id, String username, String email, String password) {
+    public UserAccount(int id, String username, String email, String password) {
         this.id=id;
         this.username = username;
         this.email = email;
